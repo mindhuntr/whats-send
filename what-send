@@ -1,0 +1,61 @@
+#!/usr/bin/python3 
+
+from whatsapp_api_client_python import API
+from inquirer import display_list,style 
+from argparse import ArgumentParser
+from termcolor import colored, cprint
+from os import path 
+import config 
+import mimetypes 
+import sys
+
+def main(): 
+
+    parser = ArgumentParser(description='command line whatsapp client') 
+    parser.add_argument('message', type=str,help="the message you would like to send",nargs="*") 
+    parser.add_argument('-f','--file',type=str,nargs="+",help="files to send")
+    parser.add_argument('-c','--chats',type=str,nargs="+",help="name of the chat",required=True) 
+    parser.add_argument('-n','--nchats',type=int,nargs="?",default=20,help="no chats to display") 
+
+    contacts = greenAPI.serviceMethods.getContacts()
+    args = parser.parse_args()
+
+    chats = [] 
+    if not chats: 
+        chats_list = { 
+                item['name']:item['id'] for item in contacts.data 
+                }
+    if args.message: 
+        if not chats:
+            chats = display_list(args.nchats,args.chats,chats_list)
+        for message in args.message: 
+            for chat_id in chats: 
+                greenAPI.sending.sendMessage(chat_id,message)
+    
+    if args.image: 
+        if not chats: 
+            chats = display_list(args.nchats,args.chats,chats_list)
+        for image in args.image:
+            if path.exists(image): 
+                for chat_id in chats: 
+                    greenAPI.sending.sendFileByUpload(chat_id,image) 
+                    print("{} sent".format(image))
+
+
+
+if __name__ == "__main__" : 
+
+    if path.exists(config.fullpath): 
+        config.parser.read(config.fullpath) 
+        api_id = config.parser.get('whats-send','api_id') 
+        api_token = config.parser.get('whats-send','api_token') 
+
+    else: 
+        config.generate_conf() 
+        config.parser.read(config.fullpath) 
+        api_id = config.parser.get('whats-send','api_id') 
+        api_token = config.parser.get('whats-send','api_token') 
+
+    greenAPI = API.GreenApi(api_id,api_token)
+    main() 
+
