@@ -32,14 +32,14 @@ def main():
             for chat_id in chats: 
                 greenAPI.sending.sendMessage(chat_id,message)
     
-    if args.image: 
+    if args.file: 
         if not chats: 
             chats = display_list(args.nchats,args.chats,chats_list)
-        for image in args.image:
-            if path.exists(image): 
+        for file in args.file:
+            if path.exists(file): 
                 for chat_id in chats: 
-                    greenAPI.sending.sendFileByUpload(chat_id,image) 
-                    print("{} sent".format(image))
+                    greenAPI.sending.sendFileByUpload(chat_id,file) 
+                    print("{} sent".format(file))
 
 
 
