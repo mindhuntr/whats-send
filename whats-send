@@ -16,6 +16,7 @@ def main():
     parser.add_argument('-f','--file',type=str,nargs="+",help="files to send")
     parser.add_argument('-c','--chats',type=str,nargs="+",help="name of the chat",required=True) 
     parser.add_argument('-n','--nchats',type=int,nargs="?",default=20,help="no chats to display") 
+    parser.add_argument('-g','--get-group-info',type=str,nargs="?",help="file to write group data to") 
 
     contacts = greenAPI.serviceMethods.getContacts()
     args = parser.parse_args()
@@ -41,7 +42,29 @@ def main():
                     greenAPI.sending.sendFileByUpload(chat_id,file) 
                     print("{} sent".format(file))
 
+    if args.get_group_info: 
+        group_info = {} 
+        if not chats: 
+            chats = display_list(args.nchats,args.chats,chats_list) 
 
+        for group_id in chats: 
+            group_res = greenAPI.groups.getGroupData(group_id) 
+            group_members = [ member['id'] for member in group_res.data['participants'] ]
+            group_info[group_res.data['subject']] = group_members 
+
+        with open(args.get_group_info, 'wb') as file: 
+
+            for group,members in group_info.items(): 
+                file.write(group.encode('utf-8'))
+                file.write('\n\n'.encode('utf-8'))
+
+                for member in members:
+                    info_member = greenAPI.serviceMethods.getContactInfo(member) 
+                    name = "\t{:<35}".format(info_member.data['name']) 
+                    number = "{}\n".format(info_member.data['chatId'].strip("@c.us"))
+
+                    file.write(name.encode('utf-8'))
+                    file.write(number.encode('utf-8'))
 
 if __name__ == "__main__" : 
 

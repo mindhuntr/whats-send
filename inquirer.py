@@ -37,28 +37,33 @@ def display_list(no_chats,chats,id_list):
                tmp = {}
                tmp['name'] = key
                dist.append(tmp)
+    
+    if dist: 
+        questions = [
+               {
+                   'type': 'checkbox',
+                   'message': 'Select chat',
+                   'name': 'Chats',
+                   'choices': dist,
+                   'validate': lambda answer: 'Choose atleast one chat' \
+                           if len(answer) == 0 else True
+                           }
+               ]
 
-    questions = [
-           {
-               'type': 'checkbox',
-               'message': 'Select chat',
-               'name': 'Chats',
-               'choices': dist,
-               'validate': lambda answer: 'Choose atleast one chat' \
-                       if len(answer) == 0 else True
-                       }
-           ]
+        answers = prompt(questions,style=style) 
+        peers = []
 
-    answers = prompt(questions,style=style) 
-    peers = []
+        if answers:
+           for val in answers.values():
+               for answer in val:
+                   peers.append(id_list[answer]) 
 
-    if answers:
-       for val in answers.values():
-           for answer in val:
-               peers.append(id_list[answer]) 
+           return peers
 
-       return peers
-
-    else:
+        else:
+            exit(1) 
+    else: 
+        print("No chats found") 
         exit(1) 
+
 
