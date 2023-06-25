@@ -14,11 +14,13 @@ def main():
     parser = ArgumentParser(description='command line whatsapp client') 
     parser.add_argument('message', type=str,help="the message you would like to send",nargs="*") 
     parser.add_argument('-f','--file',type=str,nargs="+",help="files to send")
-    parser.add_argument('-c','--chats',type=str,nargs="+",help="name of the chat",required=True) 
+    parser.add_argument('-c','--chats',type=str,nargs="+",help="name of the chat") 
     parser.add_argument('-n','--nchats',type=int,nargs="?",default=20,help="no chats to display") 
     parser.add_argument('-g','--get-group-info',type=str,nargs="?",help="file to write group data to") 
 
     contacts = greenAPI.serviceMethods.getContacts()
+    r_chats = greenAPI.journals.lastIncomingMessages() 
+
     args = parser.parse_args()
 
     chats = [] 
@@ -28,14 +30,14 @@ def main():
                 }
     if args.message: 
         if not chats:
-            chats = display_list(args.nchats,args.chats,chats_list)
+            chats = display_list(args.nchats,args.chats,chats_list,r_chats)
         for message in args.message: 
             for chat_id in chats: 
                 greenAPI.sending.sendMessage(chat_id,message)
     
     if args.file: 
         if not chats: 
-            chats = display_list(args.nchats,args.chats,chats_list)
+            chats = display_list(args.nchats,args.chats,chats_list,r_chats)
         for file in args.file:
             if path.exists(file): 
                 for chat_id in chats: 
@@ -45,7 +47,7 @@ def main():
     if args.get_group_info: 
         group_info = {} 
         if not chats: 
-            chats = display_list(args.nchats,args.chats,chats_list) 
+            chats = display_list(args.nchats,args.chats,chats_list,r_chats) 
 
         for group_id in chats: 
             group_res = greenAPI.groups.getGroupData(group_id) 
